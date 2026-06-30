@@ -91,6 +91,21 @@
 </head>
 <body>
 
+  <div id="debug" style="position:fixed;top:0;left:0;color:#0f0;background:rgba(0,0,0,0.8);font-family:monospace;font-size:24px;padding:10px;z-index:9999;">
+  loading...
+</div>
+<script>
+  function updateDebug() {
+    document.getElementById('debug').innerText =
+      'innerWidth: ' + window.innerWidth + '\n' +
+      'innerHeight: ' + window.innerHeight + '\n' +
+      'devicePixelRatio: ' + window.devicePixelRatio;
+  }
+  updateDebug();
+  window.addEventListener('resize', updateDebug);
+  setInterval(updateDebug, 1000);
+</script>
+
 <div id="player-container">
   <div id="twitch-embed"></div>
 </div>
