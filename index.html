@@ -173,5 +173,22 @@ html<!DOCTYPE html>
   });
 </script>
 
+  <div id="size-debug" style="position:fixed;bottom:0;left:0;color:#0f0;background:rgba(0,0,0,0.85);font-family:monospace;font-size:16px;padding:8px;z-index:99999;white-space:pre;"></div>
+<script>
+  setInterval(function() {
+    var iframe = document.querySelector('#twitch-embed iframe');
+    var debugEl = document.getElementById('size-debug');
+    if (iframe) {
+      var rect = iframe.getBoundingClientRect();
+      debugEl.innerText =
+        'iframe rendered: ' + Math.round(rect.width) + 'x' + Math.round(rect.height) + '\n' +
+        'iframe style.width: ' + iframe.style.width + '\n' +
+        'iframe style.height: ' + iframe.style.height;
+    } else {
+      debugEl.innerText = 'no iframe found yet';
+    }
+  }, 500);
+</script>
+
 </body>
 </html>
