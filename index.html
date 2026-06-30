@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+html<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -101,21 +101,6 @@
 </head>
 <body>
 
-  <div id="debug" style="position:fixed;top:0;left:0;color:#0f0;background:rgba(0,0,0,0.8);font-family:monospace;font-size:24px;padding:10px;z-index:9999;">
-  loading...
-</div>
-<script>
-  function updateDebug() {
-    document.getElementById('debug').innerText =
-      'innerWidth: ' + window.innerWidth + '\n' +
-      'innerHeight: ' + window.innerHeight + '\n' +
-      'devicePixelRatio: ' + window.devicePixelRatio;
-  }
-  updateDebug();
-  window.addEventListener('resize', updateDebug);
-  setInterval(updateDebug, 1000);
-</script>
-
 <div id="player-container">
   <div id="twitch-embed"></div>
 </div>
@@ -131,12 +116,8 @@
 
 <script src="https://player.twitch.tv/js/embed/v1.js"></script>
 <script>
-  // ---- CONFIGURATION ----
-  // Must exactly match the domain shown in the browser address bar:
-  // no protocol, no trailing slash.
   var PARENT_DOMAIN = "diviosdi.github.io";
   var CHANNEL = "diviosdi";
-  // ------------------------
 
   var player = new Twitch.Player("twitch-embed", {
     channel: CHANNEL,
@@ -152,8 +133,25 @@
   var overlay = document.getElementById("unmute-overlay");
   var statusMsg = document.getElementById("status-msg");
 
+  function forceSize() {
+    var embedEl = document.getElementById("twitch-embed");
+    var iframe = embedEl.querySelector("iframe");
+    if (iframe) {
+      iframe.style.width = "100%";
+      iframe.style.height = "100%";
+      iframe.style.position = "absolute";
+      iframe.style.top = "0";
+      iframe.style.left = "0";
+    }
+  }
+
   player.addEventListener(Twitch.Player.READY, function () {
     player.setMuted(true);
+    forceSize();
+  });
+
+  player.addEventListener(Twitch.Player.PLAYING, function () {
+    forceSize();
   });
 
   player.addEventListener(Twitch.Player.OFFLINE, function () {
@@ -162,7 +160,12 @@
 
   player.addEventListener(Twitch.Player.ONLINE, function () {
     statusMsg.style.display = "none";
+    forceSize();
   });
+
+  var embedContainer = document.getElementById("twitch-embed");
+  var observer = new MutationObserver(forceSize);
+  observer.observe(embedContainer, { childList: true, subtree: true, attributes: true });
 
   overlay.addEventListener("click", function () {
     player.setMuted(false);
