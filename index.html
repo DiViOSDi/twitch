@@ -1,35 +1,149 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Twitch Stream</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 1280px;
-      height: 720px;
-      background: #000;
-      overflow: hidden;
-    }
-    #twitch-embed {
-      width: 1280px;
-      height: 720px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SL Twitch Wrapper</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+  }
+
+  #player-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  #twitch-embed {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  /* Click-to-unmute overlay */
+  #unmute-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: opacity 0.25s ease;
+  }
+
+  #unmute-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #unmute-button {
+    background: #9147ff;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1.1vw;
+    padding: 0.8em 1.6em;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+    user-select: none;
+  }
+
+  #unmute-button svg {
+    width: 1.2em;
+    height: 1.2em;
+    fill: #fff;
+  }
+
+  /* Optional: offline / error message */
+  #status-msg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: #ccc;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1.4vw;
+    background: #000;
+    text-align: center;
+    padding: 0 2em;
+    box-sizing: border-box;
+  }
+</style>
 </head>
 <body>
+
+<div id="player-container">
   <div id="twitch-embed"></div>
-  <script src="https://player.twitch.tv/js/embed/v1.js"></script>
-  <script>
-    new Twitch.Player("twitch-embed", {
-      channel: "diviosdi",
-      parent: ["diviosdi.github.io"],
-      autoplay: true,
-      muted: true,
-      width: 1280,
-      height: 720
-    });
-  </script>
+</div>
+
+<div id="unmute-overlay">
+  <div id="unmute-button">
+    <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-.77-3.29-2-4.39v8.78c1.23-1.1 2-2.62 2-4.39zM14 3.23v2.06c2.89 1.01 5 3.76 5 6.71s-2.11 5.7-5 6.71v2.06c4.01-1.06 7-4.72 7-8.77s-2.99-7.71-7-8.77z"/></svg>
+    <span>Tap for sound</span>
+  </div>
+</div>
+
+<div id="status-msg">Stream unavailable</div>
+
+<script src="https://player.twitch.tv/js/embed/v1.js"></script>
+<script>
+  // ---- CONFIGURATION ----
+  // Must exactly match the domain shown in the browser address bar:
+  // no protocol, no trailing slash.
+  var PARENT_DOMAIN = "diviosdi.github.io";
+  var CHANNEL = "diviosdi";
+  // ------------------------
+
+  var player = new Twitch.Player("twitch-embed", {
+    channel: CHANNEL,
+    parent: [PARENT_DOMAIN],
+    autoplay: true,
+    muted: true,
+    controls: false,
+    width: "100%",
+    height: "100%",
+    layout: "video"
+  });
+
+  var overlay = document.getElementById("unmute-overlay");
+  var statusMsg = document.getElementById("status-msg");
+
+  player.addEventListener(Twitch.Player.READY, function () {
+    player.setMuted(true);
+  });
+
+  player.addEventListener(Twitch.Player.OFFLINE, function () {
+    statusMsg.style.display = "flex";
+  });
+
+  player.addEventListener(Twitch.Player.ONLINE, function () {
+    statusMsg.style.display = "none";
+  });
+
+  overlay.addEventListener("click", function () {
+    player.setMuted(false);
+    overlay.classList.add("hidden");
+  });
+</script>
+
 </body>
 </html>
